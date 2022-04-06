@@ -7,7 +7,10 @@ from flask import Flask, request, abort, jsonify, redirect , url_for
 import time
 
 app = Flask(__name__)
-storage = {"1":"2"}
+# storage 1: {guid:url} -> POST {1:google.com} -> PUT {1:google.com}
+
+storage = {"1":"google"} #id&url
+
 regex = re.compile(
         r'^(?:http)s?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
@@ -27,6 +30,7 @@ def shorten():
 	url = request.json['url']
 	if url_valid(url):
 		hash_url  = str(hashlib.shake_256(str(url + str(time.time())).encode("UTF-8")).hexdigest(length=3))
+		#hash_url = hashlib.shake_256(url.encode()).hexdigest() #add size of hash 
 		storage[hash_url] = url
 		return str(hash_url), 201
 	else:
