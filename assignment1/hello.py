@@ -1,9 +1,10 @@
 from crypt import methods
 import hashlib
+from os import strerror
 import random
 import re
 from flask import Flask, request, abort, jsonify, redirect , url_for
-
+import time
 
 app = Flask(__name__)
 storage = {"1":"2"}
@@ -25,42 +26,35 @@ def shorten():
 #  create KV pair 
 	url = request.json['url']
 	if url_valid(url):
-		hash_url  = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(length=3))
+		hash_url  = str(hashlib.shake_256(str(url + str(time.time())).encode("UTF-8")).hexdigest(length=3))
 		storage[hash_url] = url
 		return str(hash_url), 201
 	else:
 		# url entered is not valid. TEST
 		return "URL Not valid format.", 400
 
-@app.route("/<int:potato_id>", methods=['GET'])
+@app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
-
-	'''
-	id handling.
-	'''
-	# return 'potato there'
-	return jsonify({"POTATO ID":potato_id})
-
+	if potato_id in storage.keys():
+		return redirect(storage[potato_id]) , 301
+	else:
+		return "",404
 
 @app.route("/",methods=["GET"])
 def getAllPotatoes():
 	return jsonify({"IDs":list(storage.keys())})
 
-@app.route("/<int:delete_potato>", methods=['DELETE'])
-def potatodelete(delete_potato):
-	if delete_potato is None:
-		'''
-		/ endpoint.
-		'''
+@app.route("/<id>", methods=['DELETE'])
+def potatodelete(id):
+	if id in storage.keys():
+		del storage[id]
+		return "",204
 	else:
-		'''
-		id handling.
-		'''
+		return "Shortened URL not found",404
 
-
-
-
-
+@app.route("/",methods=['DELETE'])
+def potatodontdelete():
+	return "",404
 
 
 def bad_request(message):
