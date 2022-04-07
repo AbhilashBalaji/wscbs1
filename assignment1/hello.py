@@ -7,7 +7,7 @@ from flask import Flask, request, abort, jsonify, redirect , url_for
 import time
 
 app = Flask(__name__)
-storage = {"1":"2"}
+storage = {}
 regex = re.compile(
         r'^(?:http)s?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
@@ -25,8 +25,8 @@ def url_valid(url):
 def shorten():
 #  create KV pair 
 	url = request.json['url']
-	if url_valid(url):
-		hash_url  = str(hashlib.shake_256(str(url + str(time.time())).encode("UTF-8")).hexdigest(length=3))
+	if url_valid(url) :
+		hash_url  = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(length=3))
 		storage[hash_url] = url
 		return str(hash_url), 201
 	else:
@@ -38,7 +38,7 @@ def potato(potato_id):
 	if potato_id in storage.keys():
 		return redirect(storage[potato_id]) , 301
 	else:
-		return "",404
+		return "short url not found.",404
 
 @app.route("/",methods=["GET"])
 def getAllPotatoes():
@@ -55,6 +55,19 @@ def potatodelete(id):
 @app.route("/",methods=['DELETE'])
 def potatodontdelete():
 	return "",404
+
+@app.route("/<shorturl>",methods=["PUT"])
+def update(shorturl):
+	# change actual url for a given short url 
+	# long url is in the request body.
+	longurl = request.json['longurl']
+	for Sshort,Slong in storage.items():
+		if shorturl == Sshort and url_valid(longurl):
+			storage[Sshort] = longurl
+			return "successful updation.", 200
+		else :
+			return "URL to be shortened is invalid. " , 400
+	return "shortend url not found",404
 
 
 def bad_request(message):
