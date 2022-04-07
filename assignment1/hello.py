@@ -61,12 +61,13 @@ def update(shorturl):
 	# change actual url for a given short url 
 	# long url is in the request body.
 	longurl = request.json['longurl']
+	if url_valid(longurl) == False:			
+		return "URL to be shortened is invalid. " , 400
 	for Sshort,Slong in storage.items():
 		if shorturl == Sshort and url_valid(longurl):
 			storage[Sshort] = longurl
 			return "successful updation.", 200
-		else :
-			return "URL to be shortened is invalid. " , 400
+		
 	return "shortend url not found",404
 
 
