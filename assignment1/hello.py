@@ -48,7 +48,7 @@ def getAllPotatoes():
 def potatodelete(id):
 	if id in storage.keys():
 		del storage[id]
-		return "",204
+		return "successfully deleted",204
 	else:
 		return "Shortened URL not found",404
 
