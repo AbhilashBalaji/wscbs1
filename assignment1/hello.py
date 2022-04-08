@@ -26,7 +26,7 @@ def shorten():
 #  create KV pair 
 	url = request.json['url']
 	if url_valid(url) :
-		hash_url  = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(length=3))
+		hash_url  = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
 		storage[hash_url] = url
 		return str(hash_url), 201
 	else:
