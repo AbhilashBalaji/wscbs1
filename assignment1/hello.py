@@ -70,11 +70,3 @@ def update(shorturl):
 		
 	return "shortend url not found",404
 
-
-def bad_request(message):
-
-	response = jsonify({'message': message})
-	response.status_code = 400
-	return response
-
-
