@@ -29,10 +29,12 @@ def user_valid(token):
 @app.route("/", methods=['POST'])
 def shorten():
 
-    token = request.json['token']
+    url = request.json['url']
+    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+
     if (user_valid(token)):
         #  create KV pair
-        url = request.json['url']
+
         if url_valid(url):
             hash_url = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
             storage[hash_url] = url
@@ -48,7 +50,7 @@ def shorten():
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
 
-    token = request.json('token')
+    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
    
     if(user_valid(token)):
         if potato_id in storage.keys():
@@ -68,7 +70,7 @@ def getAllPotatoes():
 @app.route("/<id>", methods=['DELETE'])
 def potatodelete(id):
 
-    token = request.json('token')
+    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
     if (user_valid(token)):
         if id in storage.keys():
             del storage[id]
@@ -81,7 +83,9 @@ def potatodelete(id):
 
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
-    token = request.json['token']
+
+    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+
     if (user_valid(token)):
         return "", 404
     else:
@@ -91,7 +95,8 @@ def potatodontdelete():
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
 
-    token = request.json['token']
+    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+
     if (user_valid(token)):
         # change actual url for a given short url
         # long url is in the request body.
