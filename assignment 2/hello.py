@@ -28,7 +28,9 @@ def user_valid(token):
 
 @app.route("/", methods=['POST'])
 def shorten():
-    if (user_valid):
+
+    token = request.json['token']
+    if (user_valid(token)):
         #  create KV pair
         url = request.json['url']
         if url_valid(url):
@@ -40,12 +42,15 @@ def shorten():
             return "URL Not valid format.", 400
 
     else:
-        return "forbidden", 301
+        return "forbidden", 403
 
 
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
-    if (url_valid):
+
+    token = request.json('token')
+   
+    if(user_valid(token)):
         if potato_id in storage.keys():
             return redirect(storage[potato_id]), 301
         else:
@@ -62,7 +67,9 @@ def getAllPotatoes():
 
 @app.route("/<id>", methods=['DELETE'])
 def potatodelete(id):
-    if (url_valid):
+
+    token = request.json('token')
+    if (user_valid(token)):
         if id in storage.keys():
             del storage[id]
             return "successfully deleted", 204
@@ -74,7 +81,8 @@ def potatodelete(id):
 
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
-    if (url_valid):
+    token = request.json['token']
+    if (user_valid(token)):
         return "", 404
     else:
         return "forbidden", 403
@@ -82,7 +90,9 @@ def potatodontdelete():
 
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
-    if (url_valid):
+
+    token = request.json['token']
+    if (user_valid(token)):
         # change actual url for a given short url
         # long url is in the request body.
         longurl = request.json['longurl']
