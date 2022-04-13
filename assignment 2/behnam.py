@@ -7,6 +7,8 @@ import random
 import re
 from flask import Flask, request, abort, jsonify, redirect, url_for
 import time
+from auth import Token
+
 
 app_db = Flask(__name__)
 
@@ -15,7 +17,7 @@ app_db.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app_db.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app_db)
-
+newToken = Token()
 
 class User(db.Model):
     user = db.Column("user", db.String(), primary_key=True)
@@ -39,13 +41,11 @@ def create_user():
     password = request.json['password']
 
     # check for duplicate user before adding
-
     if User.query.filter_by(user=user).first() is None:
         new_user = User(user, password, "")
         db.session.add(new_user)
         db.session.commit()
 
-        # check that db is correctly created
 
         return "user created successfully", 200
     else:
@@ -62,8 +62,9 @@ def login():
     if user_record is None:
         return "forbidden", 403
     else:
-        # call generatetoken function
-        token = 'token' + str(random.randint(1, 10))
+
+	#create token for login	
+	token = newToken.createToken(user)
         user_record.token = token
         db.session.commit()
 
