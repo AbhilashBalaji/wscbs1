@@ -1,4 +1,5 @@
 from crypt import methods
+from auth import Token
 import hashlib
 from os import strerror
 import random
@@ -8,6 +9,9 @@ import time
 
 app = Flask(__name__)
 storage = {}
+
+newToken = Token()
+
 regex = re.compile(
     r'^(?:http)s?://'
     r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
@@ -22,15 +26,16 @@ def url_valid(url):
 
 
 def user_valid(token):
-    # token passed in header i.e. userservice.istokenvalid(token)
-    return True
+    return newToken.verifyToken(token)
 
 
 @app.route("/", methods=['POST'])
 def shorten():
 
     url = request.json['url']
-    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+
+    if 'alg' in request.headers:
+  	 header = request.headers['alg']
 
     if (user_valid(token)):
         #  create KV pair
@@ -49,9 +54,10 @@ def shorten():
 
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
-
-    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
    
+    if 'alg' in request.headers:
+	token = request.headers.get('alg')
+
     if(user_valid(token)):
         if potato_id in storage.keys():
             return redirect(storage[potato_id]), 301
@@ -70,7 +76,9 @@ def getAllPotatoes():
 @app.route("/<id>", methods=['DELETE'])
 def potatodelete(id):
 
-    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+    if 'alg' in request.headers:
+	token = request.headers.get('alg')
+
     if (user_valid(token)):
         if id in storage.keys():
             del storage[id]
@@ -84,7 +92,8 @@ def potatodelete(id):
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
 
-    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+    if 'alg' in request.headers:
+	token = request.headers.get('alg')
 
     if (user_valid(token)):
         return "", 404
@@ -95,11 +104,13 @@ def potatodontdelete():
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
 
-    #token = requests.get('<MY_URI>', headers={'Authorization':'TOK:<MY_TOKEN>'})
+    if 'alg' in request.headers:
+	token = request.headers.get('alg')
 
     if (user_valid(token)):
         # change actual url for a given short url
         # long url is in the request body.
+
         longurl = request.json['longurl']
         if url_valid(longurl) == False:
             return "URL to be shortened is invalid. ", 400
