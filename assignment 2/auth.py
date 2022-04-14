@@ -14,12 +14,14 @@ class Token:
         self.header = {'alg' : str(ALGORITHM)}
         self.expiry = int(EXPIRY)
 
-    def verifyToken(self,token) -> Boolean:
+    def verifyToken(self,token,userid) -> Boolean:
         try:
             claims = jwt.decode(token,self.secret,self.algorithm)        
             # {'user_id': '123', 'expires': 1649870989.100877}
             if claims['expires'] < time() :
                 return False            
+            elif int(claims['user_id']) != int(userid):
+                return False
             else :
                 return True
         except:
