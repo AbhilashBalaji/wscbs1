@@ -42,7 +42,7 @@ def create_user():
 
     # check for duplicate user before adding
     if User.query.filter_by(user=user).first() is None:
-        new_user = User(user, password, "")
+        new_user = User(user, password, None)
         db.session.add(new_user)
         db.session.commit()
 
@@ -54,6 +54,7 @@ def create_user():
 
 @app_db.route('/users/login', methods=['POST'])
 def login():
+    
     # check if user exists
     user = request.json['user']
     password = request.json['password']
@@ -61,9 +62,10 @@ def login():
 
     if user_record is None:
         return "forbidden", 403
+
     else:
 
-	#create token for login	
+        #create token for login	
 	token = newToken.createToken(user)
         user_record.token = token
         db.session.commit()

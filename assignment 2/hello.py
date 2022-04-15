@@ -8,8 +8,8 @@ from flask import Flask, request, abort, jsonify, redirect, url_for
 import time
 
 app = Flask(__name__)
-storage = {}
-
+#storage = {}
+user_url_storage = {} #{'user_id': {'short': long}}
 newToken = Token()
 
 regex = re.compile(
@@ -25,8 +25,14 @@ def url_valid(url):
     return re.match(regex, url) is not None
 
 
-def user_valid(token):
-    return newToken.verifyToken(token)
+def user_valid(token,user_id):
+    return newToken.verifyToken(token,user_id)
+
+def check_login(token, user_id):
+    if newToken.verifyToken(token, user_id):
+    	return User.filter_by(token=token).first() is not None
+    else:
+	return False
 
 
 @app.route("/", methods=['POST'])
@@ -34,18 +40,29 @@ def shorten():
 
     url = request.json['url']
 
-    if 'alg' in request.headers:
-  	 header = request.headers['alg']
+    #get token 
+    token = request.headers['Authorization']
 
-    if (user_valid(token)):
-        #  create KV pair
+    #get user from DB based on token 
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
 
+    #check if url valid
+    if (user_valid(token,user_id)):
         if url_valid(url):
-            hash_url = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
-            storage[hash_url] = url
-            return str(hash_url), 201
+	    
+
+	    #check if user logged in 
+	    if check_login(token, user_id):
+           	hash_url = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
+	    	user_url_storage[user_id] = {hash_url:url}
+
+            	return str(hash_url), 201
+
+	    else:
+		return "unauthorized short url creation", 403
+	    
         else:
-            # url entered is not valid. TEST
             return "URL Not valid format.", 400
 
     else:
@@ -55,14 +72,21 @@ def shorten():
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
    
-    if 'alg' in request.headers:
-	token = request.headers.get('alg')
+    token = request.headers['Authorization']
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
 
-    if(user_valid(token)):
-        if potato_id in storage.keys():
-            return redirect(storage[potato_id]), 301
-        else:
-            return "short url not found.", 404
+    #check if user is valid
+    if(user_valid(token, user_record.user_id)):
+
+	#check if user is logged in 
+	if check_login(token, user_id):
+       		 if potato_id in storage.keys():
+           		 return redirect(storage[potato_id]), 301
+       		 else:
+            		return "short url not found.", 404
+	else:
+		return "unauthorized, user not logged in", 403
 
     else:
         return "forbidden", 403
