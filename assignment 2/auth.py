@@ -20,7 +20,7 @@ class Token:
             # {'user_id': '123', 'expires': 1649870989.100877}
             if claims['expires'] < time() :
                 return False            
-            elif int(claims['user_id']) != int(userid):
+            elif claims['user_id'] != str(userid):
                 return False
             else :
                 return True
