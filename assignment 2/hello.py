@@ -1,12 +1,11 @@
-from crypt import methods
-from auth import Token
+from auth import Token, tokens_status
 import hashlib
 from os import strerror
 import random
 import re
 from flask import Flask, request, abort, jsonify, redirect, url_for
 import time
-from behnam import User
+from behnam import User, logout
 
 app = Flask(__name__)
 # storage = {}
@@ -27,14 +26,18 @@ def url_valid(url):
 
 
 def user_valid(token, user_id):
-    return newToken.verifyToken(token, user_id)
-
-
-def check_login(token, user_id):
-    if newToken.verifyToken(token, user_id):
-        return User.filter_by(token=token).first() is not None
+    status = newToken.verifyToken(token, user_id).status
+    if status == tokens_status.verified:
+        user_record = User.filter_by(token=token).first()
+        if user_record is not None:
+            return {'status': 200, 'user_id': user_record.user_id}
+        else:
+            return {'status': 208, 'user_id': None}
+    elif status == tokens_status.time_expired:
+        logout(token)
+        return {'status': 403, 'user_id': None}
     else:
-        return False
+        return {'status': 403, 'user_id': None}
 
 
 @app.route("/", methods=['POST'])
@@ -48,25 +51,27 @@ def shorten():
     user_record = User.filter_by(token=token).first()
     user_id = user_record.user_id
 
-    # check if url valid
-    if (user_valid(token, user_id)):
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
         if url_valid(url):
+            # check if url valid
 
-            # check if user logged in
-            if check_login(token, user_id):
-                hash_url = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
-                user_url_storage[user_id] = {hash_url: url}
+            if user_url_storage[user_id] is None:
+                user_url_storage[user_id] = {}
 
-                return str(hash_url), 201
+            hash_url = str(hashlib.shake_256(url.encode("UTF-8")).hexdigest(3))
+            user_url_storage[user_id][hash_url] = url
 
-            else:
-                return "unauthorized short url creation", 403
+            return str(hash_url), 201
 
         else:
             return "URL Not valid format.", 400
 
+    elif login_status.status == 208:
+        return "Invalid User", login_status.status
     else:
-        return "forbidden", 403
+        return "User not logged in", login_status.status
 
 
 @app.route("/<potato_id>", methods=['GET'])
@@ -76,68 +81,101 @@ def potato(potato_id):
     user_id = user_record.user_id
 
     # check if user is valid
-    if (user_valid(token, user_record.user_id)):
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
 
         # check if user is logged in
-        if check_login(token, user_id):
-            if potato_id in user_url_storage.keys():
-                return redirect(user_url_storage[potato_id]), 301
-            else:
-                return "short url not found.", 404
+        user_storage = user_url_storage[user_id]
+        if potato_id in user_storage.keys():
+            return redirect(user_storage[potato_id]), 301
         else:
-            return "unauthorized, user not logged in", 403
+            return "short url not found.", 404
 
+    elif login_status.status == 208:
+        return "Invalid User", login_status.status
     else:
-        return "forbidden", 403
+        return "User not logged in", login_status.status
 
 
 @app.route("/", methods=["GET"])
 def getAllPotatoes():
-    return jsonify({"IDs": list(user_url_storage.keys())})
+    token = request.headers['Authorization']
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
+
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
+        user_storage = user_url_storage[user_id]
+        return jsonify({"IDs": list(user_storage.keys())})
+    elif login_status.status == 208:
+        return "Invalid User", login_status.status
+    else:
+        return "User not logged in", login_status.status
 
 
 @app.route("/<id>", methods=['DELETE'])
-def potatodelete(id):
-    if 'alg' in request.headers:
-        token = request.headers.get('alg')
+def potatodelete(short_url_id):
+    token = request.headers['Authorization']
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
 
-    if (user_valid(token)):
-        if id in user_url_storage.keys():
-            del user_url_storage[id]
+    # user_storage = user_url_storage[user_id]
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
+        user_storage = user_url_storage[user_id]
+        if short_url_id in user_storage.keys():
+            del user_storage[short_url_id]
             return "successfully deleted", 204
         else:
-            return "Shortened URL not found", 404
+            return "shortened url not found", 404
     else:
         return "forbidden", 403
 
 
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
-    if 'alg' in request.headers:
-        token = request.headers.get('alg')
+    token = request.headers['Authorization']
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
 
-    if (user_valid(token)):
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
         return "", 404
+    elif login_status.status == 208:
+        return "Invalid User", login_status.status
     else:
-        return "forbidden", 403
+        return "User not logged in", login_status.status
 
 
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
-    if 'alg' in request.headers:
-        token = request.headers.get('alg')
+    token = request.headers['Authorization']
+    user_record = User.filter_by(token=token).first()
+    user_id = user_record.user_id
 
-    if (user_valid(token)):
+    login_status = user_valid(token, user_id)
+
+    if login_status.status == 200:
         # change actual url for a given short url
         # long url is in the request body.
 
         longurl = request.json['longurl']
         if url_valid(longurl) == False:
             return "URL to be shortened is invalid. ", 400
-        for Sshort, Slong in user_url_storage.items():
-            if shorturl == Sshort and url_valid(longurl):
-                user_url_storage[Sshort] = longurl
-                return "successful updation.", 200
+        #for Sshort, Slong in user_url_storage.items():
+        #    if shorturl == Sshort and url_valid(longurl):
+        user_storage = user_url_storage[user_id]
+
+        if shorturl in user_storage.keys():
+            user_storage[shorturl] = longurl
+            return "successful updated.", 200
+
         return "shortend url not found", 404
+    elif login_status.status == 208:
+        return "Invalid User", login_status.status
     else:
-        return "forbidden", 403
+        return "User not logged in", login_status.status
