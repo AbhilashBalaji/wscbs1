@@ -7,7 +7,7 @@ from enum import Enum
 # Uses pyjwt library.
 SECRET = "abc"  # dont tell anybody lol
 ALGORITHM = "HS256"
-EXPIRY = 60  # in seconds
+EXPIRY = 60 * 5  # in seconds
 tokens_status = Enum('tokens_status', 'time_expired user_not_matched verified unknown')
 
 
