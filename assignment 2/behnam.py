@@ -74,6 +74,7 @@ def login():
         return token, 200
 
 
+@app_db.route('/users/logout', methods=['POST'])
 def logout(token):
     user_record = User.query.filter_by(token=token).first()
     if user_record is not None:

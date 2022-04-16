@@ -4,8 +4,7 @@ from os import strerror
 import random
 import re
 from flask import Flask, request, abort, jsonify, redirect, url_for
-import time
-from behnam import User, logout
+import requests
 
 app = Flask(__name__)
 # storage = {}
@@ -28,13 +27,10 @@ def url_valid(url):
 def user_valid(token, user_id):
     status = newToken.verifyToken(token, user_id).status
     if status == tokens_status.verified:
-        user_record = User.filter_by(token=token).first()
-        if user_record is not None:
-            return {'status': 200, 'user_id': user_record.user_id}
-        else:
-            return {'status': 208, 'user_id': None}
+        return {'status': 200, 'user_id': user_id}
     elif status == tokens_status.time_expired:
-        logout(token)
+        response = requests.post("logout", params=token)
+        print(response)
         return {'status': 403, 'user_id': None}
     else:
         return {'status': 403, 'user_id': None}
@@ -48,8 +44,7 @@ def shorten():
     token = request.headers['Authorization']
 
     # get user from DB based on token
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
 
@@ -77,8 +72,7 @@ def shorten():
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
     token = request.headers['Authorization']
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     # check if user is valid
     login_status = user_valid(token, user_id)
@@ -101,8 +95,7 @@ def potato(potato_id):
 @app.route("/", methods=["GET"])
 def getAllPotatoes():
     token = request.headers['Authorization']
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
 
@@ -118,8 +111,7 @@ def getAllPotatoes():
 @app.route("/<id>", methods=['DELETE'])
 def potatodelete(short_url_id):
     token = request.headers['Authorization']
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     # user_storage = user_url_storage[user_id]
     login_status = user_valid(token, user_id)
@@ -138,8 +130,7 @@ def potatodelete(short_url_id):
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
     token = request.headers['Authorization']
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
 
@@ -154,8 +145,7 @@ def potatodontdelete():
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
     token = request.headers['Authorization']
-    user_record = User.filter_by(token=token).first()
-    user_id = user_record.user_id
+    user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
 
@@ -166,7 +156,7 @@ def update(shorturl):
         longurl = request.json['longurl']
         if url_valid(longurl) == False:
             return "URL to be shortened is invalid. ", 400
-        #for Sshort, Slong in user_url_storage.items():
+        # for Sshort, Slong in user_url_storage.items():
         #    if shorturl == Sshort and url_valid(longurl):
         user_storage = user_url_storage[user_id]
 
@@ -179,3 +169,7 @@ def update(shorturl):
         return "Invalid User", login_status.status
     else:
         return "User not logged in", login_status.status
+
+
+def get_user_id(token):
+    return newToken.getUserIdfromToken(token)
