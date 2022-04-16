@@ -31,6 +31,13 @@ class Token:
         except:
             return {'status': tokens_status.unknown}
 
+    def getUserIdfromToken(self,token):
+            try:
+                claims = jwt.decode(token, self.secret, self.algorithm) 
+                return claims['user_id']
+            except:
+                return None
+    
     def createToken(self, userid) -> String:
         payload = {
             "user_id": userid,
