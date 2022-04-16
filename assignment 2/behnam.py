@@ -75,11 +75,18 @@ def login():
 
 
 @app_db.route('/users/logout', methods=['POST'])
-def logout(token):
+def logout():
+
+    if "Authorization" in response.headers:
+	token = request.headers['Authorization']
+    else
+	token = None
+
     user_record = User.query.filter_by(token=token).first()
     if user_record is not None:
         user_record.token = None
-        return "Successfully logged out", 200
+        db.session.commit()
+        return "user successfully logged out", 200
         # we can also redirect to homepage or login page but we do not have UI here
     else:
         return "User is not logged in", 401

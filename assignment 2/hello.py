@@ -41,7 +41,10 @@ def shorten():
     url = request.json['url']
 
     # get token
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
 
     # get user from DB based on token
     user_id = get_user_id(token)
@@ -71,7 +74,12 @@ def shorten():
 
 @app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
+
+    # get user from DB based on token
     user_id = get_user_id(token)
 
     # check if user is valid
@@ -94,7 +102,12 @@ def potato(potato_id):
 
 @app.route("/", methods=["GET"])
 def getAllPotatoes():
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
+
+    # get user from DB based on token
     user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
@@ -110,7 +123,12 @@ def getAllPotatoes():
 
 @app.route("/<id>", methods=['DELETE'])
 def potatodelete(short_url_id):
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
+
+    # get user from DB based on token
     user_id = get_user_id(token)
 
     # user_storage = user_url_storage[user_id]
@@ -129,7 +147,12 @@ def potatodelete(short_url_id):
 
 @app.route("/", methods=['DELETE'])
 def potatodontdelete():
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
+
+    # get user from DB based on token
     user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
@@ -144,7 +167,12 @@ def potatodontdelete():
 
 @app.route("/<shorturl>", methods=["PUT"])
 def update(shorturl):
-    token = request.headers['Authorization']
+    if "Authorization" in response.headers:
+    	token = request.headers['Authorization']
+    else:
+	token = None
+
+    # get user from DB based on token
     user_id = get_user_id(token)
 
     login_status = user_valid(token, user_id)
