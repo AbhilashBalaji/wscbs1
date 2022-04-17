@@ -68,10 +68,10 @@ def shorten():
 		else:
 			return "URL Not valid format.", 400
 
-	elif login_status['status'] == 208:
-		return "Invalid User", login_status['status']
+#	elif login_status['status'] == 208:
+#		return "Invalid User", login_status['status']
 	else:
-		return "User not logged in", login_status['status']
+		return "User not logged in or doesnt exist", login_status['status']
 
 
 @app.route("/<potato_id>", methods=['GET'])
@@ -97,10 +97,10 @@ def potato(potato_id):
 		else:
 			return "short url not found.", 404
 
-	elif login_status['status'] == 208:
-		return "Invalid User", login_status['status']
+	#elif login_status['status'] == 208:
+	#	return "Invalid User", login_status['status']
 	else:
-		return "User not logged in", login_status['status']
+		return "User not logged in or doesnt exist", login_status['status']
 
 
 @app.route("/", methods=["GET"])
@@ -118,10 +118,10 @@ def getAllPotatoes():
 	if login_status['status'] == 200:
 		user_storage = user_url_storage[user_id]
 		return jsonify({"IDs": list(user_storage.keys())})
-	elif login_status['status'] == 208:
-		return "Invalid User", login_status['status']
+	#elif login_status['status'] == 208:
+	#	return "Invalid User", login_status['status']
 	else:
-		return "User not logged in", login_status['status']
+		return "User not logged in or doesnt exist", login_status['status']
 
 
 @app.route("/<short_url_id>", methods=['DELETE'])
@@ -165,10 +165,10 @@ def potatodontdelete():
 
 	if login_status['status'] == 200:
 		return "", 404
-	elif login_status['status'] == 208:
-		return "Invalid User", login_status['status']
+#	elif login_status['status'] == 208:
+#		return "Invalid User", login_status['status']
 	else:
-		return "User not logged in", login_status['status']
+		return "User not logged in or doesnt exist", login_status['status']
 
 
 @app.route("/<shorturl>", methods=["PUT"])
@@ -199,10 +199,10 @@ def update(shorturl):
 			return "successful updated.", 200
 
 		return "shortend url not found", 404
-	elif login_status['status'] == 208:
-		return "Invalid User", login_status['status']
+	#elif login_status['status'] == 208:
+	#	return "Invalid User", login_status['status']
 	else:
-		return "User not logged in", login_status['status']
+		return "User not logged in or doesnt exist", login_status['status']
 
 
 def get_user_id(token):
