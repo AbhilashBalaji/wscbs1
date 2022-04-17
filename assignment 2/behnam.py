@@ -1,13 +1,7 @@
-import os
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-import hashlib
-from os import strerror
-import random
-import re
-from flask import Flask, request, abort, jsonify, redirect, url_for
-import time
-from auth import Token, tokens_status
+from flask import Flask, request
+from auth import Token
 
 app_db = Flask(__name__)
 
