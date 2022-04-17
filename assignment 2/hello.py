@@ -184,8 +184,7 @@ def update(shorturl):
         longurl = request.json['longurl']
         if url_valid(longurl) == False:
             return "URL to be shortened is invalid. ", 400
-        # for Sshort, Slong in user_url_storage.items():
-        #    if shorturl == Sshort and url_valid(longurl):
+
         user_storage = user_url_storage[user_id]
 
         if shorturl in user_storage.keys():
