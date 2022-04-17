@@ -9,47 +9,44 @@ api_gateway_app = Flask(__name__)
 
 @api_gateway_app.route('/users', methods=['POST'])
 def redirect_to_users():
-    print(config.users_app_ip + 'users')
-    data = request.json
-    dictionary = json.loads(data)
-    return requests.post(url=config.users_app_ip + 'users', data=dictionary)
+    return redirect(config.users_app_ip + 'users', code=307)
 
 
 @api_gateway_app.route('/users/login', methods=['POST'])
 def redirect_to_login():
-    return "redirect to login"
+    return redirect(config.users_app_ip + 'users/login', code=307)
 
 
 @api_gateway_app.route('/users/logout', methods=['POST'])
 def redirect_to_logout():
-    return "redirect to logout"
+    return redirect(config.users_app_ip + 'users/logout', code=307)
 
 
 #####################################################
 
 @api_gateway_app.route("/", methods=['POST'])
 def redirect_to_shorten():
-    return "redirect to shorten"
+    return redirect(config.shorten_app_ip, code=307)
 
 
 @api_gateway_app.route("/<potato_id>", methods=['GET'])
 def potato(potato_id):
-    return "redirect to GET shorten: " + str(potato_id)
+    return redirect(config.shorten_app_ip + potato_id, code=307)
 
 
 @api_gateway_app.route("/", methods=["GET"])
 def getAllPotatoes():
-    return "redirect to GET all shorten"
+    return redirect(config.shorten_app_ip, code=307)
 
 
 @api_gateway_app.route("/<short_url_id>", methods=['DELETE'])
 def potatodelete(short_url_id):
-    return "redirect to DELETE all shorten: " + str(short_url_id)
+    return redirect(config.shorten_app_ip + short_url_id, code=307)
 
 
 @api_gateway_app.route("/", methods=['DELETE'])
 def potatodontdelete():
-    return "redirect to DELETE"
+    return redirect(config.shorten_app_ip, code=307)
 
 
 @api_gateway_app.route("/<shorturl>", methods=["PUT"])
