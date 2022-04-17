@@ -97,11 +97,8 @@ def potato(potato_id):
             return redirect(user_storage[potato_id]), 301
         else:
             return "short url not found.", 404
-
-    elif login_status['status'] == 208:
-        return "Invalid User", login_status['status']
     else:
-        return "User not logged in", login_status['status']
+        return "User not logged in or does not exist", login_status['status']
 
 
 @app.route("/", methods=["GET"])
@@ -119,10 +116,8 @@ def getAllPotatoes():
     if login_status['status'] == 200:
         user_storage = user_url_storage[user_id]
         return jsonify({"IDs": list(user_storage.keys())})
-    elif login_status['status'] == 208:
-        return "Invalid User", login_status['status']
     else:
-        return "User not logged in", login_status['status']
+        return "User not logged in or does not exist", login_status['status']
 
 
 @app.route("/<short_url_id>", methods=['DELETE'])
@@ -166,10 +161,8 @@ def potatodontdelete():
 
     if login_status['status'] == 200:
         return "", 404
-    elif login_status['status'] == 208:
-        return "Invalid User", login_status['status']
     else:
-        return "User not logged in", login_status['status']
+        return "User not logged in or does not exist", login_status['status']
 
 
 @app.route("/<shorturl>", methods=["PUT"])
@@ -200,10 +193,8 @@ def update(shorturl):
             return "successful updated.", 200
 
         return "shortend url not found", 404
-    elif login_status['status'] == 208:
-        return "Invalid User", login_status['status']
     else:
-        return "User not logged in", login_status['status']
+        return "User not logged in or does not exist", login_status['status']
 
 
 def get_user_id(token):
