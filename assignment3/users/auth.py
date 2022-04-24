@@ -7,7 +7,7 @@ from enum import Enum
 # Uses pyjwt library.
 SECRET = "abc"  # dont tell anybody lol
 ALGORITHM = "HS256"
-EXPIRY = 60 * 5  # in seconds
+EXPIRY = 60 * 600000000000  # in seconds
 tokens_status = Enum('tokens_status', 'time_expired user_not_matched verified unknown')
 
 
@@ -43,10 +43,10 @@ class Token:
             "user_id": userid,
             "expires": time() + self.expiry
         }
-        try:
-            token = jwt.encode(payload, SECRET, ALGORITHM)
-        except:
-            return ""
+        print("payload=",payload)
+        print("payload=",SECRET)
+        print("payload=",ALGORITHM)
+        token = jwt.encode(payload, SECRET, ALGORITHM)
         return token
 
 # if __name__ == '__main__':

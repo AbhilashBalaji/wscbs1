@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 
 RUN apk update \
     && apk add --virtual build-deps gcc python3-dev musl-dev \
-    && apk add --no-cache libsqlite3-dev \
+    && apk add --no-cache sqlite-libs \
+    && apk add --no-cache libffi-dev
 
 COPY requirements.txt ./
 

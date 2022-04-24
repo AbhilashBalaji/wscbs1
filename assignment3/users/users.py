@@ -1,7 +1,7 @@
 import uuid
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request
-from assignment3.users.users import Token
+from auth import Token
 
 app_db = Flask(__name__)
 
@@ -61,7 +61,10 @@ def login():
     else:
 
         # create token for login
+        print('user=', user)
+        print('password=', password)
         token = newToken.createToken(user)
+        print('token=', token)
         user_record.token = token
         db.session.commit()
 
@@ -95,3 +98,6 @@ def logoutDB(token):
     if user_record is not None:
         user_record.token = None
         db.session.commit()
+        
+if __name__ == "__main__":
+    app_db.run(host="0.0.0.0", port=5501, debug=True)
