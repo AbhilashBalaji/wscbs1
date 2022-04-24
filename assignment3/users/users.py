@@ -1,7 +1,7 @@
 import uuid
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request
-from assignment3.users.users import Token
+from auth import Token
 
 app_db = Flask(__name__)
 
