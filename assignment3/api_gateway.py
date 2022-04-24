@@ -1,8 +1,5 @@
-import json
-
-import requests
-from flask import Flask, request, abort, jsonify, redirect, url_for
-import config
+from flask import Flask, redirect
+from assignment3.users.users import config
 
 api_gateway_app = Flask(__name__)
 
