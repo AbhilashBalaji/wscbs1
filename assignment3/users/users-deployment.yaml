@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+  namespace: assignment3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+        - name: users-container
+          imagePullPolicy: Always
+          image: index.docker.io/abhilashbalaji/wscbsa3:users-app
+          ports:
+            - containerPort: 5501
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - curl -X POST http://127.0.0.1/users -H 'Content-Type: application/json' -d '{"user": "test","password": "123"}'
