@@ -19,9 +19,3 @@ spec:
           image: index.docker.io/abhilashbalaji/wscbsa3:users-app
           ports:
             - containerPort: 5501
-          readinessProbe:
-            exec:
-              command:
-              - sh
-              - -c
-              - curl -X POST http://127.0.0.1/users --header "Content-Type: application/json" --request POST --data '{"user":"test","password":"123"}'
