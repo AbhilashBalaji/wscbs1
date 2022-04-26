@@ -9,6 +9,6 @@ spec:
   type: LoadBalancer
   ports:
     - port: 5051
-      targetPort: 6666
+      targetPort: 5500
   selector:
     app: shortener

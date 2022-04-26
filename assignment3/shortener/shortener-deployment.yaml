@@ -18,4 +18,4 @@ spec:
           imagePullPolicy: Always
           image: index.docker.io/abhilashbalaji/wscbsa3:shortener-app
           ports:
-            - containerPort: 6666
+            - containerPort: 5500
