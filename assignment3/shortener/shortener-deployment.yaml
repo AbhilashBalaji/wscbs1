@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shortener-deployment
+  namespace: assignment3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shortener
+  template:
+    metadata:
+      labels:
+        app: shortener
+    spec:
+      containers:
+        - name: shortener-container
+          imagePullPolicy: Always
+          image: index.docker.io/abhilashbalaji/wscbsa3:shortener-app
+          ports:
+            - containerPort: 6666
