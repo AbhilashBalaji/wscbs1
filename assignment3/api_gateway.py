@@ -1,5 +1,5 @@
 from flask import Flask, redirect
-from assignment3.users.users import config
+from assignment3.users import config
 
 api_gateway_app = Flask(__name__)
 
