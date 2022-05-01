@@ -1,21 +1,46 @@
+#THIS FILE CONTAINS SAME/SIMILAR COMMENTS to shortener-deployment.yaml since they are both microservices that are deployed in same manner
+# version of the Kubernetes API we are using to create this object
+# this version includes the core features of kubernetes (including Deployment)
 apiVersion: apps/v1
+# kind by itself can be pod/DaemonSet/Deployment or Service which is type of object in kubernetes
+# in kubernetes we can create pods by commands or yaml file (1 is necessary and more for scaling horizontally)
+# but deployments create or modify instances of the pods that hold a containerized application and by apply command we can run it easily
 kind: Deployment
+# metadata is a tool for us to manage the object much better for referencing
 metadata:
+# name of deployment which is unique.
   name: users-deployment
+  #same namespace as shortener-yaml because both microservices in same application
   namespace: assignment3
+# in spec body we say what exactly we want kubernetes to build
 spec:
+# number of pods to create for having redundancy (horizontal scaling) - 3 because assignment defined it this way
   replicas: 3
+ # ease the access to resource by defining labels such as app 
   selector:
+# matchLabels tells what pods the deployment will apply to.
     matchLabels:
+     # the desired key value which must match a pod.
       app: users
+  # as mentioned above, deployment is for creating instances of pods. so if we define deployments, we need to configure the pods that deployment is gonna create.
+  # so template is configurations for pods
   template:
     metadata:
+    # in labels we define key-value pairs to add a tag to resources
       labels:
+       # for example here we added pair of app: users which can be used like: kubectl get pods --namespace=assignment3 --selector=app=users
         app: users
     spec:
+     # each pods which our deployment is gonna create, must have container
+     # we configure the container of the pod here
       containers:
+      # name of container
         - name: users-container
+        # the policy that indicates when should kubernetes fetch the image
           imagePullPolicy: Always
+          # the image file which contains our user flask application and we uploaded it in dockerhub
           image: index.docker.io/abhilashbalaji/wscbsa3:users-app
+           # in ports we can define protocols, port of pod and etc.
           ports:
+          # container port is the port we exposed in our flask application so the requests will be received and sent with this port
             - containerPort: 5501
