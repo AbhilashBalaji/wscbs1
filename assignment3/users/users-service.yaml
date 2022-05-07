@@ -10,6 +10,6 @@ spec:
   ports:
     - port: 5050 
       targetPort: 5501
-      nodePort: 6000
+      nodePort: 30600
   selector:
     app: users
