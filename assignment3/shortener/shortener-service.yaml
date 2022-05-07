@@ -9,7 +9,7 @@ metadata:
   labels:
     app: shortener-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
     - port: 5051
       targetPort: 5500

@@ -6,7 +6,7 @@ metadata:
   labels:
     app: users-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
     - port: 5050 
       targetPort: 5501
