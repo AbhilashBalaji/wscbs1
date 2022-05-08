@@ -4,6 +4,7 @@ metadata:
   name: shortener-scaler
   namespace: assignment3
 spec:
+  # the target deployment that we want to scale horizontally
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
@@ -15,6 +16,7 @@ spec:
   metrics:
   - type: Resource
     resource:
+      # which resource is our criteria for horizontal scaling
       name: cpu
       target:
         # this specifies the condition on which horizontal scaling begins.

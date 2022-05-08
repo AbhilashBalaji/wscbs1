@@ -1,3 +1,5 @@
+# parameters are same as shortener-horizontal-scaler and everthing is explained there
+# some other lines like metadata are similar to service and deployment so explanations skipped here.
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
