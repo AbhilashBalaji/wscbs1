@@ -13,7 +13,7 @@ RUN apk update \
     && apk add --no-cache libffi-dev
 
 #copies text file over into filesystem at path ./
-#requirements.txt defines versions of installments
+#requirements.txt is list of python packages needs to be installed for our project
 COPY requirements.txt ./
     
 #installment of packages
