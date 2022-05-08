@@ -8,6 +8,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: shortener-deployment
+  # Replicas determine the minimum or maximum number of pods running at any point.
+  # This is prioritised over the deployment specification in the case of minimum.
   minReplicas: 4
   maxReplicas: 10
   metrics:
@@ -15,5 +17,7 @@ spec:
     resource:
       name: cpu
       target:
+        # this specifies the condition on which horizontal scaling begins.
+        # ie - average Utilization of cpu is greater than 50%.
         type: Utilization
         averageUtilization: 50
