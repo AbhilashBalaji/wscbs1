@@ -3,16 +3,23 @@
 apiVersion: v1
 # service is a kind of entity in kubernetes that gives a pod or group of them set of logics to make them accessable whether from inside the cluster or outside.
 kind: Service
+# metadata describing the service.
 metadata:
   name: shortener-nodeport
   namespace: assignment3
   labels:
     app: shortener-service
+# spec describes the specifications of the service ie - type , ports.
 spec:
+  # NodePort exposes the service to an external IP.
   type: NodePort
   ports:
+    # port is the internal port
     - port: 5051
+      # targetPort is exposed cluster IP port.
       targetPort: 5500
+      # nodePort is external IP port that is exposed.
       nodePort: 30500
+  # selector is used to ease the access to resource by defining labels such as app (which we used or whatever we want).
   selector:
     app: shortener
