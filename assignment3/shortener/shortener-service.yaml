@@ -1,7 +1,7 @@
 # version of the Kubernetes API we are using to create this object
 # based on https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-apiversion-definition-guide.html, services must have v1 version
 apiVersion: v1
-#
+# service is a kind of entity in kubernetes that gives a pod or group of them set of logics to make them accessable whether from inside the cluster or outside.
 kind: Service
 metadata:
   name: shortener-nodeport
